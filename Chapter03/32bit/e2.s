@@ -3,7 +3,7 @@
 #
 #INPUT:    none
 #
-#OUTPUT:   returns a status code.  This can be viewed
+#OUTPUT:   returns a status code.  This can be viewed 
 #          by typing
 #
 #          echo $?
