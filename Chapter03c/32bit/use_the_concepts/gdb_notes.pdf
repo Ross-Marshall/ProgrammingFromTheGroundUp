@@ -1,0 +1,10 @@
+GDB Notes
+
+b _symbol  # Set break point 
+
+Compile, link and run
+
+as --gstabs concept2.s -o concept2.o
+ld concept2.o -o concept2
+gdb ./concept2
+
