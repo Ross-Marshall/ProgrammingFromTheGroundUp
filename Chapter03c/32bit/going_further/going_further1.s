@@ -1,0 +1,30 @@
+#PURPOSE:  Modify the first program to leave off the int instruction line. Assemble, link,
+#          and execute the new program. What error message do you get. Why do you
+#          think this might be?
+#         
+#
+#INPUT:    none
+#
+#OUTPUT:   returns a status code.  This can be viewed
+#          by typing
+#
+#          echo $?
+#
+#          after running the program
+#
+#VARIABLES:
+#          %eax holds the system call number
+#          %ebx holds the return status
+#
+.section .data
+.section .text
+.globl _start
+_start:
+movl $1, %eax      	# this is the linux kernel command
+			# number (system call) for exiting
+			# a program
+movl $0, %ebx      	# this is the status number we will
+			# return to the operating system.
+			# Change this around and it will
+			# return different things to
+			# echo $?
