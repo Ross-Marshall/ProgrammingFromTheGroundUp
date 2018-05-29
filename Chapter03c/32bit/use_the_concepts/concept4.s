@@ -1,7 +1,6 @@
 #PURPOSE:  This program finds the maximum number of a
 #          set of data items.
 #
-# 255 indicates the end of the list
 
 #VARIABLES: The registers have the following uses:
 #
@@ -16,7 +15,8 @@
 #
 .section .data
 data_items:		#These are the data items
-.long 3,67,34,222,45,75,54,34,44,33,22,11,66,255
+.long 3,67,34,222,45,75,54,34,44,33,22,11,66,0
+end_data_items:
 
 .section .text
 .globl _start
@@ -25,16 +25,17 @@ _start:
  	movl data_items(,%edi,4), %eax	# load the first byte of data ADDRESS(BASE,INDEX,MULTIPLIER)
  	movl %eax, %ebx			# since this is the first item, %eax is
 					# the biggest
+        movl end_data_items(,%edi,4), %ecx # Put the location of the address after the data into %ecx
 
 start_loop:				# start loop
-	cmpl $255, %eax			# check to see if we’ve hit the end
+	cmpl %ecx, %eax			# check to see if we’ve hit the end
 	je loop_exit
 	incl %edi			# load next value
 	movl data_items(,%edi,4),%eax
 	cmpl %ebx, %eax			# compare values
-	jge  start_loop			# jump to loop beginning if the new
-					# one isn’t smaller
-	movl %eax, %ebx			# move the value as the smallest
+	jle start_loop			# jump to loop beginning if the new
+					# one isn’t bigger
+	movl %eax, %ebx			# move the value as the largest
 
 	jmp start_loop			# jump to loop beginning
 loop_exit:
