@@ -1,11 +1,13 @@
 #PURPOSE:	Program to illustrate how functions work
 #		This program will compute the value of
-#		2^3 + 5^2
+#		4^2 - 3^2 = 16 - 9 = 7
 #
 
 #
 # Everything in the main program is stored in registers,
 # so the data section doesn’t have anything.
+#
+# Modified for 64 bit compilation (eax ==> eax, ebx ==> ebx, etc...)
 #
 
 .section .data
@@ -15,8 +17,8 @@
 .globl _start
 
 _start:
-	pushl $3:		#pushl second argument
-	pushl $2		#pushl first argument
+	pushl $2		#pushl second argument
+	pushl $3		#pushl first argument
 	call power		#call the function
 	addl $8, %esp		#movle the stack pointer back
 
@@ -24,8 +26,9 @@ _start:
 				#calling the next function
 
 	pushl $2		#pushl second argument
-	pushl $5		#pushl first argument
+	pushl $4		#pushl first argument
 	call power		#call the function
+
 	addl $8, %esp		#movle the stack pointer back
 
 	popl %ebx 		#The second answer is already	
@@ -34,8 +37,9 @@ _start:
 				#so now we can just popl it	
 				#out into %ebx	
 
-	addl %eax, %ebx 	#add them together	
-				#the result is in %ebx	
+_finaladd:
+	subl %ebx, %eax 	#subtract ebx from eax
+	movl %eax, %ebx		#the result is in %ebx	
 		
 	movl $1, %eax		#exit (%ebx is returned)	
 	int $0x80 		

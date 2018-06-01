@@ -15,7 +15,7 @@
 .globl _start
 
 _start:
-	pushl $3:		#pushl second argument
+	pushl $2		#pushl second argument
 	pushl $2		#pushl first argument
 	call power		#call the function
 	addl $8, %esp		#movle the stack pointer back
@@ -24,7 +24,7 @@ _start:
 				#calling the next function
 
 	pushl $2		#pushl second argument
-	pushl $5		#pushl first argument
+	pushl $4		#pushl first argument
 	call power		#call the function
 	addl $8, %esp		#movle the stack pointer back
 
@@ -34,6 +34,7 @@ _start:
 				#so now we can just popl it	
 				#out into %ebx	
 
+_finaladd:
 	addl %eax, %ebx 	#add them together	
 				#the result is in %ebx	
 		

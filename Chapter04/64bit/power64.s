@@ -20,7 +20,7 @@ _start:
 	push $3			#push second argument
 	push $2			#push first argument
 	call power		#call the function
-	addl $8, %esp		#move the stack pointer back
+	add $16, %rsp		#move the stack pointer back
 
 	push %rax 		#save the first answer before
 				#calling the next function
@@ -28,7 +28,7 @@ _start:
 	push $2			#push second argument
 	push $5			#push first argument
 	call power		#call the function
-	add $8, %esp		#move the stack pointer back
+	add $16, %rsp		#move the stack pointer back
 
 	pop %rbx 		#The second answer is already	
 				#in %rax. We saved the	
@@ -71,15 +71,15 @@ power:
 	mov	%rsp, %rbp	#make stack pointer the base pointer
 	sub	$8, %rsp	#get room for our local storage
 				
-	mov 8(%rbp), %rbx 	#put first argument in %rax		
-	mov 16(%rbp), %rcx 	#put second argument in %ecx 		
+	mov 16(%rbp), %rbx 	#put first argument in %rax		
+	mov 24(%rbp), %rcx 	#put second argument in %ecx 		
 		
 	mov %rbx, -8(%rbp) 	#store current result		
 		
 power_loop_start:		
 	cmp $1, %rcx		#if the power is 1, we are done		
 	je end_power	
-		
+	
 	mov -8(%rbp), %rax 	#move the current result into %rax		
 	imul %rbx, %rax	 	#multiply the current result by		
 				#the base number	
@@ -88,10 +88,8 @@ power_loop_start:
 	dec %rcx		#decrease the power	
 	jmp power_loop_start 	#run for the next power	
 		
-		
-		
 end_power:		
-	mov -8(%ebp), %rax	#return value goes in %rax	
+	mov -8(%rbp), %rax	#return value goes in %rax	
 	mov %rbp, %rsp		#restore the stack pointer	
 	pop %rbp		#restore the base pointer	
 	ret		

@@ -1,11 +1,13 @@
 #PURPOSE:	Program to illustrate how functions work
 #		This program will compute the value of
-#		2^3 + 5^2
+#		3^3 + 4^2 + 5^2 = 48
 #
 
 #
 # Everything in the main program is stored in registers,
 # so the data section doesn’t have anything.
+#
+# Modified for 64 bit compilation (eax ==> eax, ebx ==> ebx, etc...)
 #
 
 .section .data
@@ -15,12 +17,31 @@
 .globl _start
 
 _start:
-	pushl $3:		#pushl second argument
-	pushl $2		#pushl first argument
+
+	pushl $3		#pushl second argument
+	pushl $3		#pushl first argument
 	call power		#call the function
 	addl $8, %esp		#movle the stack pointer back
 
+_first:
 	pushl %eax 		#save the first answer before
+				#calling the next function
+
+	pushl $2		#pushl second argument
+	pushl $4		#pushl first argument
+	call power		#call the function
+	addl $8, %esp		#movle the stack pointer back
+
+_second:
+	popl %ebx 		#The third answer is already	
+				#in %eax. We saved the	
+				#first and second answers onto the stack,	
+				#so now we can just popl it	
+				#out into %ebx	
+
+	addl %eax, %ebx 	#add them together	
+
+	pushl %ebx 		#save the second answer before
 				#calling the next function
 
 	pushl $2		#pushl second argument
@@ -28,14 +49,9 @@ _start:
 	call power		#call the function
 	addl $8, %esp		#movle the stack pointer back
 
-	popl %ebx 		#The second answer is already	
-				#in %eax. We saved the	
-				#first answer onto the stack,	
-				#so now we can just popl it	
-				#out into %ebx	
-
-	addl %eax, %ebx 	#add them together	
-				#the result is in %ebx	
+_third:
+	popl %ebx		#pop the second answer
+	addl %eax, %ebx         #add them together
 		
 	movl $1, %eax		#exit (%ebx is returned)	
 	int $0x80 		
