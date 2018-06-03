@@ -40,8 +40,8 @@ factorial:
 	mov %rsp, %rbp 		# This is because we don’t want to modify	
 				# the stack pointer, so we use %rbp.
 	mov 16(%rbp), %rax 	# This moves the first argument to %rax	
-				# 4(%rbp) holds the return address, and
-				# 8(%rbp) holds the first parameter
+				# 8(%rbp) holds the return address, and
+				# 16(%rbp) holds the first parameter
 	
 	cmp $1, %rax		# If the number is 1, that is our base
 				# case, and we simply return (1 is
