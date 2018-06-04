@@ -4,6 +4,7 @@
 #  		4 is 4 * 3 * 2 * 1, or 24, and so on.	
 # 	
 # 	This program shows how to call a function recursively.	
+#	Change mull to mulq for 64 bit
 	
 .section .data	
 	
@@ -56,17 +57,18 @@ factorial:
 	
 	mov 16(%rbp), %rbx 	# %rax has the return value, so we	
 				# reload our parameter into %rbx
-	imul %rbx, %rax		# multiply that by the result of the
+	imulq %rbx, %rax	# multiply that by the result of the
 				# last call to factorial (in %rax)
 				# the answer is stored in %rax, which
 				# is good since that’s where return
 				# values go.
 	
 end_factorial:	
-	mov %rbp, %rsp		# standard function return stuff - we
-	
+	mov %rbp, %rsp		# standard function return stuff - we	
 	pop %rbp		# have to restore %rbp and %rsp to where
 				# they were before the function started
+				# Note: exit codes ($?) > 255 will be
+				# displayed are not correct.
 	
 	ret			# return to the function (this pops the
 				# return value, too)
