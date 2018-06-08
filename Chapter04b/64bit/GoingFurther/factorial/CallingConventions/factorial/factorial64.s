@@ -23,33 +23,30 @@ factorial:
 				# restore %rbp to its prior state before
 				# returning, so we have to push it
 	
-	mov %rsp, %rbp 		# This is because we don’t want to modify	
+	movq %rsp, %rbp 	# This is because we don’t want to modify	
 				# the stack pointer, so we use %rbp.
+
 	movq %r8, %rax 		# This moves the first argument to %rax	
 				# 8(%rbp) holds the return address, and
 				# 16(%rbp) holds the first parameter
+
+start_loop:
 	
-	cmpq $1, %rax		# If the number is 1, that is our base
+	decq %r8		# otherwise, decrease the value
+	
+	cmpq $1, %r8		# If the number is 1, that is our base
 				# case, and we simply return (1 is
 				# already in %rax as the return value)
 	
 	je end_factorial	
-	decq %rax		# otherwise, decrease the value
 	
-	movq %rax,%r8		# push it for our call to factorial
-	
-	call factorial		# call factorial
-	
-	movq %rax, %rbx 	# %rax has the return value, so we	
 				# reload our parameter into %rbx
-	imulq %r8, %rax		# multiply that by the result of the
-				# last call to factorial (in %rax)
-				# the answer is stored in %rax, which
-				# is good since that’s where return
-				# values go.
+	imulq %r8, %rax		# multiply that by the result of the decrement
+				
+	jmp start_loop
 	
 end_factorial:	
-	mov %rbp, %rsp		# standard function return stuff - we	
+	movq %rbp, %rsp		# standard function return stuff - we	
 	pop %rbp		# have to restore %rbp and %rsp to where
 				# they were before the function started
 				# Note: exit codes ($?) > 255 will be
