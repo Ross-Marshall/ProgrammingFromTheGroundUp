@@ -1,0 +1,316 @@
+##########################################################################
+#
+# PURPOSE:	THIS PROGRAM CONVERTS AN INPUT FILE	
+# 		TO AN OUTPUT FILE WITH ALL LETTERS	
+# 		CONVERTED TO UPPERCASE.	
+# 		
+# PROCESSING:		
+# 		1) OPEN THE INPUT FILE
+# 		2) OPEN THE OUTPUT FILE			
+# 		4) WHILE WE’RE NOT AT THE END OF THE INPUT FILE	
+# 			A) READ PART OF FILE INTO OUR MEMORY BUFFER	
+# 			B) GO THROUGH EACH BYTE OF MEMORY	
+# 			   IF THE BYTE IS A LOWER-CASE LETTER,	
+# 			   CONVERT IT TO UPPERCASE	
+# 			C) WRITE THE MEMORY BUFFER TO OUTPUT FILE
+#
+##########################################################################
+	
+.SECTION .DATA	
+	
+##########################################################################
+# 
+# CONSTANTS
+#
+##########################################################################	
+		
+	.EQU SYS_OPEN, 5		# SYSTEM CALL NUMBERS	
+	.EQU SYS_WRITE, 4	
+	.EQU SYS_READ, 3	
+	.EQU SYS_CLOSE, 6	
+	.EQU SYS_EXIT, 1
+
+##########################################################################
+# 	
+# OPTIONS FOR OPEN (LOOK AT		
+# /USR/INCLUDE/ASM/FCNTL.H FOR		
+# VARIOUS VALUES. YOU CAN COMBINE THEM		
+# BY ADDING THEM OR ORING THEM)		
+# THIS IS DISCUSSED AT GREATER LENGTH		
+# IN "COUNTING LIKE A COMPUTER"	
+#
+##########################################################################
+	
+	.EQU O_RDONLY, 0	
+	.EQU O_CREAT_WRONLY_TRUNC, 03101	
+		
+# STANDARD FILE DESCRIPTORS		
+	.EQU STDIN, 0	
+	.EQU STDOUT, 1	
+	.EQU STDERR, 2	
+
+# SYSTEM CALL INTERRUPT		
+	.EQU LINUX_SYSCALL, 0X80	# THIS IS THE RETURN VALUE
+	.EQU END_OF_FILE, 0		# OF READ WHICH MEANS WE’VE
+					# HIT THE END OF THE FILE		
+		
+	.EQU NUMBER_ARGUMENTS, 2
+	
+.SECTION .BSS		
+		
+##########################################################################
+#
+# BUFFER - 	THIS IS WHERE THE DATA IS LOADED INTO		
+# 		FROM THE DATA FILE AND WRITTEN FROM	
+# 		INTO THE OUTPUT FILE. THIS SHOULD	
+# 		NEVER EXCEED 16,000 FOR VARIOUS	
+# 		REASONS.
+#
+##########################################################################	
+		
+.EQU BUFFER_SIZE, 500	
+	
+.LCOMM BUFFER_DATA, BUFFER_SIZE		
+		
+.SECTION .TEXT		
+		
+# STACK POSITIONS	
+	.EQU ST_SIZE_RESERVE, 8	
+	.EQU ST_FD_IN, -4	
+	.EQU ST_FD_OUT, -8	
+	.EQU ST_ARGC, 0		# NUMBER OF ARGUMENTS
+	.EQU ST_ARGV_0, 4	# NAME OF PROGRAM
+	.EQU ST_ARGV_1, 8	# INPUT FILE NAME
+	.EQU ST_ARGV_2, 12	# OUTPUT FILE NAME
+		
+.GLOBL _START		
+		
+_START:		
+		
+##########################################################################
+# 
+# INITIALIZE PROGRAM 
+# 
+##########################################################################		
+			
+	MOVL	%ESP, %EBP	# SAVE THE STACK POINTER
+		
+##########################################################################
+#
+# ALLOCATE SPACE FOR OUR FILE DESCRIPTORS		
+# ON THE STACK	
+#
+##########################################################################
+	
+	SUBL $ST_SIZE_RESERVE, %ESP		
+		
+OPEN_FILES:		
+
+OPEN_FD_IN:		
+
+##########################################################################
+#
+# OPEN INPUT FILE
+#
+########################################################################## 		
+		
+	MOVL $SYS_OPEN, %EAX			# OPEN SYSCALL
+	MOVL ST_ARGV_1(%EBP), %EBX		# INPUT FILENAME INTO %EBX
+	MOVL $O_RDONLY, %ECX			# READ-ONLY FLAG
+	MOVL $0666, %EDX			# THIS DOESN’T REALLY MATTER FOR READING
+	INT $LINUX_SYSCALL			# CALL LINUX
+		
+STORE_FD_IN:	MOVL %EAX, ST_FD_IN(%EBP)	# SAVE THE GIVEN FILE DESCRIPTOR
+OPEN_FD_OUT:		
+
+##########################################################################
+# 
+# OPEN OUTPUT FILE
+#
+########################################################################## 	
+	
+	MOVL $SYS_OPEN, %EAX			# OPEN THE FILE
+	MOVL ST_ARGV_2(%EBP), %EBX		# OUTPUT FILENAME INTO %EBX
+	MOVL $O_CREAT_WRONLY_TRUNC, %ECX	# FLAGS FOR WRITING TO THE FILE
+	MOVL $0666, %EDX			# MODE FOR NEW FILE (IF IT’S CREATED)
+		
+	INT $LINUX_SYSCALL 			# CALL LINUX
+
+STORE_FD_OUT:		
+	MOVL %EAX, ST_FD_OUT(%EBP)	# STORE THE FILE DESCRIPTOR HERE
+
+##########################################################################
+#		
+# BEGIN MAIN LOOP
+#
+########################################################################## 	
+	
+READ_LOOP_BEGIN:		
+	
+##########################################################################	
+#
+# READ IN A BLOCK FROM THE INPUT FILE
+# 
+########################################################################## 		
+	MOVL $SYS_READ, %EAX	
+	MOVL ST_FD_IN(%EBP), %EBX	# GET THE INPUT FILE DESCRIPTOR
+	MOVL $BUFFER_DATA, %ECX		# THE LOCATION TO READ INTO
+	MOVL $BUFFER_SIZE, %EDX		# THE SIZE OF THE BUFFER
+	INT $LINUX_SYSCALL 		# SIZE OF BUFFER READ IS RETURNED IN %EAX
+
+##########################################################################		
+# 
+# EXIT IF WE’VE REACHED THE END
+#
+########################################################################## 		
+	CMPL $END_OF_FILE, %EAX		# CHECK FOR END OF FILE MARKER
+	JLE END_LOOP 			# IF FOUND OR ON ERROR, GO TO THE END
+
+CONTINUE_READ_LOOP:		
+	
+##########################################################################
+#	
+# CONVERT THE BLOCK TO UPPER CASE
+# 
+##########################################################################
+	
+	PUSH $BUFFER_DATA		# LOCATION OF BUFFER
+	PUSH %EAX			# SIZE OF THE BUFFER
+	CALL CONVERT_TO_UPPER	
+	POP %EAX			# GET THE SIZE BACK
+	ADDL $4, %ESP			# RESTORE %ESP
+
+##########################################################################
+#		
+# WRITE THE BLOCK OUT TO THE OUTPUT FILE
+# 		
+##########################################################################
+	MOVL %EAX, %EDX			# SIZE OF THE BUFFER
+	MOVL $SYS_WRITE, %EAX	
+	MOVL ST_FD_OUT(%EBP), %EBX	# FILE TO USE
+	MOVL $BUFFER_DATA, %ECX		# LOCATION OF THE BUFFER
+	INT $LINUX_SYSCALL 	
+		
+##########################################################################
+#
+# CONTINUE THE LOOP
+# 		
+##########################################################################
+
+	JMP READ_LOOP_BEGIN 	
+		
+END_LOOP:	
+
+##########################################################################
+#	
+# CLOSE THE FILES		
+#
+# NOTE - WE DON’T NEED TO DO ERROR CHECKING		
+#        ON THESE, BECAUSE ERROR CONDITIONS 		
+#        DON’T SIGNIFY ANYTHING SPECIAL HERE 
+#		
+##########################################################################
+
+	MOVL $SYS_CLOSE, %EAX	
+	MOVL ST_FD_OUT(%EBP), %EBX	
+	INT $LINUX_SYSCALL 	
+		
+	MOVL $SYS_CLOSE, %EAX 	
+	MOVL ST_FD_IN(%EBP), %EBX 	
+	INT $LINUX_SYSCALL 	
+		
+##########################################################################
+#
+# EXIT
+#
+########################################################################## 
+		
+	MOVL $SYS_EXIT, %EAX	
+	MOVL $0, %EBX	
+	INT $LINUX_SYSCALL 	
+		
+##########################################################################
+#
+# PURPOSE:	THIS FUNCTION ACTUALLY DOES THE	
+# 	CONVERSION TO UPPER CASE FOR A BLOCK	
+# 		
+# INPUT:	THE FIRST PARAMETER IS THE LOCATION	
+# 	OF THE BLOCK OF MEMORY TO CONVERT	
+# 	THE SECOND PARAMETER IS THE LENGTH OF	
+# 	THAT BUFFER	
+# 		
+# OUTPUT:	THIS FUNCTION OVERWRITES THE CURRENT	
+# 	BUFFER WITH THE UPPER-CASIFIED VERSION.	
+
+# 		
+# VARIABLES:		
+# 	%EAX - BEGINNING OF BUFFER	
+# 	%EBX - LENGTH OF BUFFER	
+# 	%EDI - CURRENT BUFFER OFFSET	
+# 	%CL - CURRENT BYTE BEING EXAMINED	
+# 	(FIRST PART OF %ECX)	
+# 		
+##########################################################################
+
+##########################################################################
+#
+# CONSTANTS
+#
+########################################################################## 	
+	
+	.EQU LOWERCASE_A, 'A'			# THE LOWER BOUNDARY OF OUR SEARCH
+	.EQU LOWERCASE_Z, 'Z'			# THE UPPER BOUNDARY OF OUR SEARCH
+        #.EQU UPPERCASE_A, 'A'
+	.EQU UPPER_CONVERSION, 'A' - 'A'	# CONVERSION BETWEEN UPPER AND LOWER CASE
+	#.EQU UPPER_CONVERSION, '
+	
+##########################################################################	
+#
+# STACK STUFF
+# 		
+##########################################################################
+
+	.EQU ST_BUFFER_LEN, 8 			# LENGTH OF BUFFER	
+	.EQU ST_BUFFER, 12			# ACTUAL BUFFER
+		
+CONVERT_TO_UPPER:
+		
+	PUSH %EBP	
+	MOVL %ESP, %EBP	
+
+##########################################################################
+#
+# SET UP VARIABLES
+#
+########################################################################## 	
+	
+	MOVL ST_BUFFER(%EBP), %EAX	
+	MOVL ST_BUFFER_LEN(%EBP), %EBX	
+	MOVL $0, %EDI	
+			
+	CMPL $0, %EBX				# IF A BUFFER WITH ZERO LENGTH WAS GIVEN
+	JE END_CONVERT_LOOP 			# TO US, JUST LEAVE
+		
+CONVERT_LOOP:	
+	
+	MOVB (%EAX,%EDI,1), %CL			# GET THE CURRENT BYTE
+	CMPB $LOWERCASE_A, %CL			# GO TO THE NEXT BYTE UNLESS IT IS BETWEEN
+	JL NEXT_BYTE 				# ’A’ AND ’Z’
+	CMPB $LOWERCASE_Z, %CL	
+	JG NEXT_BYTE 	
+		
+	ADDB $UPPER_CONVERSION, %CL		# OTHERWISE CONVERT THE BYTE TO UPPERCASE
+	MOVB %CL, (%EAX,%EDI,1)			# AND STORE IT BACK
+		
+NEXT_BYTE:	
+	
+	INCL %EDI				# NEXT BYTE
+	CMPL %EDI, %EBX				# CONTINUE UNLESS
+						# WE’VE REACHED THE
+						# END
+	JNE CONVERT_LOOP 	
+		
+END_CONVERT_LOOP:		
+	MOVL %EBP, %ESP				# NO RETURN VALUE, JUST LEAVE
+	POP %EBP	
+	RET	
