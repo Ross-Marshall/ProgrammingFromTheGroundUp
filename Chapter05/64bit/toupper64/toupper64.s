@@ -24,11 +24,11 @@
 #
 ##########################################################################	
 		
-	.equ SYS_OPEN, 5		# system call numbers	
-	.equ SYS_WRITE, 4	
-	.equ SYS_READ, 3	
-	.equ SYS_CLOSE, 6	
-	.equ SYS_EXIT, 1
+	.equ SYS_OPEN,  2		# syscall numbers	
+	.equ SYS_WRITE, 1	
+	.equ SYS_READ,  0	
+	.equ SYS_CLOSE, 3	
+	.equ SYS_EXIT,  1
 
 ##########################################################################
 # 	
@@ -39,10 +39,14 @@
 # This is discussed at greater length		
 # in "Counting Like a Computer"	
 #
+# Note: 64-bit x86 uses syscall instead of interrupt 0x80. 
+# The result value will be in %rax
+#
 ##########################################################################
 	
 	.equ O_RDONLY, 0	
-	.equ O_CREAT_WRONLY_TRUNC, 03101	
+	.equ O_CREAT_WRONLY_TRUNC, 03101
+	.equ O_READ_WRITE_MODE, 0102	
 		
 # standard file descriptors		
 	.equ STDIN, 0	
@@ -75,13 +79,13 @@
 .section .text		
 		
 # STACK POSITIONS	
-	.equ ST_SIZE_RESERVE, 8	
-	.equ ST_FD_IN, -4	
-	.equ ST_FD_OUT, -8	
+	.equ ST_SIZE_RESERVE, 16	
+	.equ ST_FD_IN, -8	
+	.equ ST_FD_OUT, -16	
 	.equ ST_ARGC, 0		# Number of arguments
-	.equ ST_ARGV_0, 4	# Name of program
-	.equ ST_ARGV_1, 8	# Input file name
-	.equ ST_ARGV_2, 12	# Output file name
+	.equ ST_ARGV_0, 8	# Name of program
+	.equ ST_ARGV_1, 16	# Input file name
+	.equ ST_ARGV_2, 24	# Output file name
 		
 .globl _start		
 		
@@ -114,11 +118,12 @@ open_fd_in:
 #
 ########################################################################## 		
 		
-	movq $SYS_OPEN, %rax			# open syscall
-	movq ST_ARGV_1(%rbp), %rbx		# input filename into %rbx
-	movq $O_RDONLY, %rcx			# read-only flag
+	movq $SYS_OPEN, %rax			# open syscall$rbp
+	#movq ST_ARGV_1(%rbp), %rdi		# input filename into %rbx
+	movq ST_ARGV_1, %rdi		# input filename into %rbx
+	movq O_READ_WRITE_MODE, %rsi		# read-write flag
 	movq $0666, %rdx			# this doesn’t really matter for reading
-	int $LINUX_SYSCALL			# call Linux
+	syscall					# call Linux
 		
 store_fd_in:	
 	movq %rax, ST_FD_IN(%rbp)		# save the given file descriptor
@@ -132,14 +137,14 @@ open_fd_out:
 ########################################################################## 	
 	
 	movq $SYS_OPEN, %rax			# open the file
-	movq ST_ARGV_2(%rbp), %rbx		# output filename into %rbx
-	movq $O_CREAT_WRONLY_TRUNC, %rcx	# flags for writing to the file
+	movq ST_ARGV_2(%rbp), %rdi		# output filename into %rbx
+	movq SYS_WRITE, %rcx			# flags for writing to the file
 	movq $0666, %rdx			# mode for new file (if it’s created)
 		
-	int $LINUX_SYSCALL 			# call Linux
+	syscall		 			# call Linux
 
 store_fd_out:		
-	movq %rax, ST_FD_OUT(%rbp)	# store the file descriptor here
+	movq %rax, ST_FD_OUT(%rbp)		# store the file descriptor here
 
 ##########################################################################
 #		
@@ -176,10 +181,10 @@ continue_read_loop:
 # 
 ##########################################################################
 	
-	push $BUFFER_DATA		# location of buffer
-	push %rax			# size of the buffer
+	pushq $BUFFER_DATA		# location of buffer
+	pushq %rax			# size of the buffer
 	call convert_to_upper	
-	pop %rax			# get the size back
+	popq %rax			# get the size back
 	addq $8, %rsp			# restore %rsp
 
 ##########################################################################
@@ -275,7 +280,7 @@ end_loop:
 		
 convert_to_upper:
 		
-	push %rbp	
+	pushq %rbp	
 	movq %rsp, %rbp	
 
 ##########################################################################
@@ -312,5 +317,5 @@ next_byte:
 		
 end_convert_loop:		
 	movq %rbp, %rsp				# no return value, just leave
-	pop %rbp	
+	popq %rbp	
 	ret	
