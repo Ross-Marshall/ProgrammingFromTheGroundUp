@@ -24,10 +24,10 @@
 #
 ##########################################################################	
 		
-	.equ SYS_OPEN,  2		# syscall numbers	
-	.equ SYS_WRITE, 1	
-	.equ SYS_READ,  0	
-	.equ SYS_CLOSE, 3	
+	.equ SYS_OPEN,  5		# syscall numbers	
+	.equ SYS_WRITE, 4	
+	.equ SYS_READ,  3	
+	.equ SYS_CLOSE, 6	
 	.equ SYS_EXIT,  1
 
 ##########################################################################
@@ -119,9 +119,8 @@ open_fd_in:
 ########################################################################## 		
 		
 	movq $SYS_OPEN, %rax			# open syscall$rbp
-	#movq ST_ARGV_1(%rbp), %rdi		# input filename into %rbx
-	movq ST_ARGV_1, %rdi		# input filename into %rbx
-	movq O_READ_WRITE_MODE, %rsi		# read-write flag
+	movq ST_ARGV_1(%rbp), %rbx		# input filename into %rbx
+	movq $SYS_READ, %rcx			# read-write flag
 	movq $0666, %rdx			# this doesn’t really matter for reading
 	syscall					# call Linux
 		
@@ -137,8 +136,8 @@ open_fd_out:
 ########################################################################## 	
 	
 	movq $SYS_OPEN, %rax			# open the file
-	movq ST_ARGV_2(%rbp), %rdi		# output filename into %rbx
-	movq SYS_WRITE, %rcx			# flags for writing to the file
+	movq ST_ARGV_2(%rbp), %rbx		# output filename into %rbx
+	movq $SYS_WRITE, %rcx			# flags for writing to the file
 	movq $0666, %rdx			# mode for new file (if it’s created)
 		
 	syscall		 			# call Linux
@@ -159,11 +158,13 @@ read_loop_begin:
 # READ IN A BLOCK FROM THE INPUT FILE
 # 
 ########################################################################## 		
-	movq $SYS_READ, %rax	
+	#movq $SYS_READ, %rax	
 	movq ST_FD_IN(%rbp), %rbx	# get the input file descriptor
+debug:
+	movq $0, %rax 
 	movq $BUFFER_DATA, %rcx		# the location to read into
 	movq $BUFFER_SIZE, %rdx		# the size of the buffer
-	int $LINUX_SYSCALL 		# Size of buffer read is returned in %rax
+	syscall 	 		# Size of buffer read is returned in %rax
 
 ##########################################################################		
 # 
