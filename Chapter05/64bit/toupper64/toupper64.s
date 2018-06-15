@@ -59,6 +59,8 @@
 					# hit the end of the file		
 		
 	.equ NUMBER_ARGUMENTS, 2
+
+msg: .ascii "Hello World\n"
 	
 .section .bss		
 		
@@ -72,11 +74,12 @@
 #
 ##########################################################################	
 		
-.equ BUFFER_SIZE, 500	
+.equ BUFFER_SIZE, 504	
 	
 .lcomm BUFFER_DATA, BUFFER_SIZE		
 		
 .section .text		
+
 		
 # STACK POSITIONS	
 	.equ ST_SIZE_RESERVE, 16	
@@ -159,11 +162,17 @@ read_loop_begin:
 # 
 ########################################################################## 		
 	#movq $SYS_READ, %rax	
-	movq ST_FD_IN(%rbp), %rbx	# get the input file descriptor
 debug:
-	movq $0, %rax 
-	movq $BUFFER_DATA, %rcx		# the location to read into
-	movq $BUFFER_SIZE, %rdx		# the size of the buffer
+	movl ST_FD_IN(%ebp), %ebx	# get the input file descriptor
+
+	movl $3, %eax 
+	movl $BUFFER_DATA, %ecx		# the location to read into
+	movl $BUFFER_SIZE, %edx		# the size of the buffer
+    #movq $1, %rax   # use the write syscall
+    #movq $1, %rdi   # write to stdout
+    #movq $msg, %rsi # use string "Hello World"
+    #movq $12, %rdx  # write 12 characters
+	
 	syscall 	 		# Size of buffer read is returned in %rax
 
 ##########################################################################		
