@@ -24,9 +24,9 @@
 #
 ##########################################################################	
 		
-	.equ SYS_OPEN,  5		# syscall numbers	
+	.equ SYS_OPEN,  2		# syscall numbers	
 	.equ SYS_WRITE, 4	
-	.equ SYS_READ,  3	
+	.equ SYS_READ,  0	
 	.equ SYS_CLOSE, 6	
 	.equ SYS_EXIT,  1
 
@@ -45,6 +45,8 @@
 ##########################################################################
 	
 	.equ O_RDONLY, 0	
+	.equ O_WRONLY, 1	
+
 	.equ O_CREAT_WRONLY_TRUNC, 03101
 	.equ O_READ_WRITE_MODE, 0102	
 		
@@ -83,10 +85,10 @@ msg: .ascii "Hello World\n"
 		
 # STACK POSITIONS	
 	.equ ST_SIZE_RESERVE, 16	
-	.equ ST_FD_IN, -8	
+	.equ ST_FD_IN, -8
 	.equ ST_FD_OUT, -16	
 	.equ ST_ARGC, 0		# Number of arguments
-	.equ ST_ARGV_0, 8	# Name of program
+	.equ ST_ARGV_0, 8	# Name of program:q
 	.equ ST_ARGV_1, 16	# Input file name
 	.equ ST_ARGV_2, 24	# Output file name
 		
@@ -121,10 +123,15 @@ open_fd_in:
 #
 ########################################################################## 		
 		
-	movq $SYS_OPEN, %rax			# open syscall$rbp
-	movq ST_ARGV_1(%rbp), %rbx		# input filename into %rbx
-	movq $SYS_READ, %rcx			# read-write flag
-	movq $0666, %rdx			# this doesn’t really matter for reading
+	#movq $SYS_OPEN, %rax			# open syscall$rbp
+	#movq ST_ARGV_1(%rbp), %rbx		# input filename into %rbx
+	#movq $SYS_READ, %rcx			# read-write flag
+	#movq $0666, %rdx			# this doesn’t really matter for reading
+
+	movq $SYS_OPEN,%rax
+	movq ST_ARGV_1(%rbp),%rdi
+	movq $O_RDONLY,%rsi
+	movq $0644,%rdx
 	syscall					# call Linux
 		
 store_fd_in:	
@@ -138,15 +145,20 @@ open_fd_out:
 #
 ########################################################################## 	
 	
-	movq $SYS_OPEN, %rax			# open the file
-	movq ST_ARGV_2(%rbp), %rbx		# output filename into %rbx
-	movq $SYS_WRITE, %rcx			# flags for writing to the file
-	movq $0666, %rdx			# mode for new file (if it’s created)
-		
-	syscall		 			# call Linux
+	#movq $SYS_OPEN, %rax			# open the file
+	#movq ST_ARGV_2(%rbp), %rbx		# output filename into %rbx
+	#movq $SYS_WRITE, %rcx			# flags for writing to the file
+	#movq $0666, %rdx			# mode for new file (if it’s created)
+	
+#	movq $SYS_OPEN,%rax
+#	movq $BUFFER_DATA,%rdi
+#	movq $BUFFER_DATA,%rsi
+#	movq $BUFFER_SIZE,%rdx
+	
+#	syscall		 			# call Linux
 
 store_fd_out:		
-	movq %rax, ST_FD_OUT(%rbp)		# store the file descriptor here
+#	movq %rax, ST_FD_OUT(%rbp)		# store the file descriptor here
 
 ##########################################################################
 #		
@@ -163,15 +175,22 @@ read_loop_begin:
 ########################################################################## 		
 	#movq $SYS_READ, %rax	
 debug:
-	movl ST_FD_IN(%ebp), %ebx	# get the input file descriptor
+	#movq ST_FD_IN(%rbp), %rbx	# get the input file descriptor
 
-	movl $3, %eax 
-	movl $BUFFER_DATA, %ecx		# the location to read into
-	movl $BUFFER_SIZE, %edx		# the size of the buffer
+	#movq %rax,%rdi
+	#movq $3,%rax 
+	#movq $BUFFER_DATA, %rsi		# the location to read into
+	#movq $8, %rdx
+	#movq $BUFFER_SIZE, %rdx		# the size of the buffer
     #movq $1, %rax   # use the write syscall
     #movq $1, %rdi   # write to stdout
     #movq $msg, %rsi # use string "Hello World"
     #movq $12, %rdx  # write 12 characters
+
+	movq %rax,%rdi
+	movq $SYS_READ, %rax
+	movq $BUFFER_DATA,%rsi
+	movq $BUFFER_SIZE,%rdx
 	
 	syscall 	 		# Size of buffer read is returned in %rax
 
