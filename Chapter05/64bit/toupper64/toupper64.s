@@ -46,6 +46,7 @@
 	
 	.equ O_RDONLY, 0	
 	.equ O_WRONLY, 1	
+	.equ O_RDWR,   2
 
 	.equ O_CREAT_WRONLY_TRUNC, 03101
 	.equ O_READ_WRITE_MODE, 0102	
@@ -61,8 +62,6 @@
 					# hit the end of the file		
 		
 	.equ NUMBER_ARGUMENTS, 2
-
-msg: .ascii "Hello World\n"
 	
 .section .bss		
 		
@@ -122,16 +121,11 @@ open_fd_in:
 # OPEN INPUT FILE
 #
 ########################################################################## 		
-		
-	#movq $SYS_OPEN, %rax			# open syscall$rbp
-	#movq ST_ARGV_1(%rbp), %rbx		# input filename into %rbx
-	#movq $SYS_READ, %rcx			# read-write flag
-	#movq $0666, %rdx			# this doesn’t really matter for reading
 
-	movq $SYS_OPEN,%rax
-	movq ST_ARGV_1(%rbp),%rdi
-	movq $O_RDONLY,%rsi
-	movq $0644,%rdx
+	movq $SYS_OPEN,%rax			# open command to rax
+	movq ST_ARGV_1(%rbp),%rdi		# file pointer to rdi
+	movq $O_RDONLY,%rsi			# read only flag to rsi
+	movq $0644,%rdx				# file permissoins to rdx
 	syscall					# call Linux
 		
 store_fd_in:	
@@ -145,20 +139,15 @@ open_fd_out:
 #
 ########################################################################## 	
 	
-	#movq $SYS_OPEN, %rax			# open the file
-	#movq ST_ARGV_2(%rbp), %rbx		# output filename into %rbx
-	#movq $SYS_WRITE, %rcx			# flags for writing to the file
-	#movq $0666, %rdx			# mode for new file (if it’s created)
+	movq $SYS_OPEN,%rax			# open command to rax
+	movq ST_ARGV_2(%rbp),%rbx		# file pointer to rdi
+	#movq O_WRONLY,%rsi			# write only flag to rsi
+	movq $0666,%rdx				# file permissoins to rdx
 	
-#	movq $SYS_OPEN,%rax
-#	movq $BUFFER_DATA,%rdi
-#	movq $BUFFER_DATA,%rsi
-#	movq $BUFFER_SIZE,%rdx
-	
-#	syscall		 			# call Linux
+	syscall		 			# call Linux
 
 store_fd_out:		
-#	movq %rax, ST_FD_OUT(%rbp)		# store the file descriptor here
+	movq %rax, ST_FD_OUT(%rbp)		# store the file descriptor here
 
 ##########################################################################
 #		
@@ -173,24 +162,13 @@ read_loop_begin:
 # READ IN A BLOCK FROM THE INPUT FILE
 # 
 ########################################################################## 		
-	#movq $SYS_READ, %rax	
-debug:
-	#movq ST_FD_IN(%rbp), %rbx	# get the input file descriptor
 
-	#movq %rax,%rdi
-	#movq $3,%rax 
-	#movq $BUFFER_DATA, %rsi		# the location to read into
-	#movq $8, %rdx
-	#movq $BUFFER_SIZE, %rdx		# the size of the buffer
-    #movq $1, %rax   # use the write syscall
-    #movq $1, %rdi   # write to stdout
-    #movq $msg, %rsi # use string "Hello World"
-    #movq $12, %rdx  # write 12 characters
-
-	movq %rax,%rdi
-	movq $SYS_READ, %rax
-	movq $BUFFER_DATA,%rsi
-	movq $BUFFER_SIZE,%rdx
+	movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+	movq $SYS_READ, %rax		# read command
+	movq $BUFFER_DATA,%rsi		# data buffer to rsi	
+        pushq %rsi
+	movq $BUFFER_SIZE,%rdx		# data size to rdx
+        pushq %rdx
 	
 	syscall 	 		# Size of buffer read is returned in %rax
 
@@ -210,8 +188,8 @@ continue_read_loop:
 # 
 ##########################################################################
 	
-	pushq $BUFFER_DATA		# location of buffer
-	pushq %rax			# size of the buffer
+	#pushq $BUFFER_DATA		# location of buffer
+	#pushq %rax			# size of the buffer
 	call convert_to_upper	
 	popq %rax			# get the size back
 	addq $8, %rsp			# restore %rsp
@@ -308,6 +286,9 @@ end_loop:
 	.equ ST_BUFFER, 12			# actual buffer
 		
 convert_to_upper:
+
+        popq %r8
+        popq %r9
 		
 	pushq %rbp	
 	movq %rsp, %rbp	
