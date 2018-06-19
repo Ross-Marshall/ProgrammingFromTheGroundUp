@@ -166,9 +166,9 @@ read_loop_begin:
 	movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
 	movq $SYS_READ, %rax		# read command
 	movq $BUFFER_DATA,%rsi		# data buffer to rsi	
-        pushq %rsi
+     #   pushq %rsi
 	movq $BUFFER_SIZE,%rdx		# data size to rdx
-        pushq %rdx
+        #pushq %rdx
 	
 	syscall 	 		# Size of buffer read is returned in %rax
 
@@ -190,6 +190,8 @@ continue_read_loop:
 	
 	#pushq $BUFFER_DATA		# location of buffer
 	#pushq %rax			# size of the buffer
+	#pushq %rsi
+ 	#pushq %rdx	
 	call convert_to_upper	
 	popq %rax			# get the size back
 	addq $8, %rsp			# restore %rsp
@@ -202,6 +204,7 @@ continue_read_loop:
 	movq %rax, %rdx			# size of the buffer
 	movq $SYS_WRITE, %rax	
 	movq ST_FD_OUT(%rbp), %rbx	# file to use
+
 	movq $BUFFER_DATA, %rcx		# location of the buffer
 	int $LINUX_SYSCALL 	
 		
@@ -255,7 +258,7 @@ end_loop:
 # 		
 # OUTPUT:	This function overwrites the current	
 # 		buffer with the upper-casified version.	
-
+#
 # 		
 # VARIABLES:		
 # 	%rax - beginning of buffer	
@@ -287,8 +290,10 @@ end_loop:
 		
 convert_to_upper:
 
-        popq %r8
-        popq %r9
+ # popq %r11
+ # popq %r11
+ # popq %r11
+ # popq %r11
 		
 	pushq %rbp	
 	movq %rsp, %rbp	
@@ -299,24 +304,26 @@ convert_to_upper:
 #
 ########################################################################## 	
 	
-	movq ST_BUFFER(%rbp), %rax	
-	movq ST_BUFFER_LEN(%rbp), %rbx	
-	movq $0, %rdi	
+#	movq ST_BUFFER(%rbp), %rax	
+#	movq ST_BUFFER_LEN(%rbp), %rbx	
+#	movq $0, %rdi	
 			
 	cmpq $0, %rbx				# if a buffer with zero length was given
 	je end_convert_loop 			# to us, just leave
 		
 convert_loop:	
 	
-	movb (%rax,%rdi,1), %cl			# get the current byte
+	#movb (%rax,%rdi,1), %cl			# get the current byte
+    movb (%rsi,%rdi,1), %cl
 	cmpb $LOWERCASE_A, %cl			# go to the next byte unless it is between
 	jl next_byte 				# ’a’ and ’z’
 	cmpb $LOWERCASE_Z, %cl	
 	jg next_byte 	
 		
 	addb $UPPER_CONVERSION, %cl		# otherwise convert the byte to uppercase
-	movb %cl, (%rax,%rdi,1)			# and store it back
-		
+	#movb %cl, (%rax,%rdi,1)			# and store it back
+   movb %cl, (%rsi,%rdi,1)		
+
 next_byte:	
 	
 	incq %rdi				# next byte
