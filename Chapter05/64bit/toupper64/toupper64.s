@@ -189,7 +189,7 @@ continue_read_loop:
 ##########################################################################
 	
 	#pushq $BUFFER_DATA		# location of buffer
-	#pushq %rax			# size of the buffer
+	#pushq %rax		r toupper64.s toupper64.uppercase	# size of the buffer
 	#pushq %rsi
  	#pushq %rdx	
 	call convert_to_upper	
@@ -201,12 +201,13 @@ continue_read_loop:
 # WRITE THE BLOCK OUT TO THE OUTPUT FILE
 # 		
 ##########################################################################
+
 	movq %rax, %rdx			# size of the buffer
 	movq $SYS_WRITE, %rax	
 	movq ST_FD_OUT(%rbp), %rbx	# file to use
 
 	movq $BUFFER_DATA, %rcx		# location of the buffer
-	int $LINUX_SYSCALL 	
+	syscall     #int $LINUX_SYSCALL 	
 		
 ##########################################################################
 #
@@ -306,14 +307,14 @@ convert_to_upper:
 	
 #	movq ST_BUFFER(%rbp), %rax	
 #	movq ST_BUFFER_LEN(%rbp), %rbx	
-#	movq $0, %rdi	
+	movq $0, %rdi	
 			
-	cmpq $0, %rbx				# if a buffer with zero length was given
+	cmpq $0, %rax				# if a buffer with zero length was given
 	je end_convert_loop 			# to us, just leave
 		
 convert_loop:	
 	
-	#movb (%rax,%rdi,1), %cl			# get the current byte
+	#movb (%rdi,%rdi,1), %cl			# get the current byte
     movb (%rsi,%rdi,1), %cl
 	cmpb $LOWERCASE_A, %cl			# go to the next byte unless it is between
 	jl next_byte 				# ’a’ and ’z’
@@ -327,7 +328,7 @@ convert_loop:
 next_byte:	
 	
 	incq %rdi				# next byte
-	cmpq %rdi, %rbx				# continue unless
+	cmpq %rdi, %rdx   #%rbx				# continue unless
 						# we’ve reached the
 						# end
 	jne convert_loop 	
