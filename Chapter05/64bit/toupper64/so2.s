@@ -1,4 +1,4 @@
-BITS 64
+# BITS 64
 # Author Mr.Un1k0d3r - RingZer0 Team
 # Read /etc/passwd Linux x86_64 Shellcode
 # Shellcode size 82 bytes
