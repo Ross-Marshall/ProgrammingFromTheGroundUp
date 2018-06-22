@@ -25,7 +25,7 @@
 ##########################################################################	
 		
 	.equ SYS_OPEN,  2		# syscall numbers	
-	.equ SYS_WRITE, 4	
+	.equ SYS_WRITE, 1	
 	.equ SYS_READ,  0	
 	.equ SYS_CLOSE, 6	
 	.equ SYS_EXIT,  1
@@ -202,11 +202,12 @@ continue_read_loop:
 # 		
 ##########################################################################
 
-	movq %rax, %rdx			# size of the buffer
-	movq $SYS_WRITE, %rax	
-	movq ST_FD_OUT(%rbp), %rbx	# file to use
+write_buffer:  # https://www.cs.utexas.edu/~bismith/test/syscalls/syscalls.html
 
-	movq $BUFFER_DATA, %rcx		# location of the buffer
+	#movq %rax, %rdx			# size of the buffer is in %rax
+	movq ST_FD_OUT(%rbp), %rdi	# file handle is in %rdi
+	movq $SYS_WRITE, %rsi		# system call 1 is write
+	movq $BUFFER_DATA, %rdx		# location of the buffer
 	syscall     #int $LINUX_SYSCALL 	
 		
 ##########################################################################
