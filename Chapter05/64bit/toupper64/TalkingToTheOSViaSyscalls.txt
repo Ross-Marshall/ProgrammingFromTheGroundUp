@@ -1,0 +1,83 @@
+https://www.cs.uaf.edu/courses/cs301/2014-fall/notes/syscall/
+
+Talking to the Operating System via Syscalls 
+
+Normally, to interact with the outside world (files, network, etc) from assembly language, you just call an existing function, usually the exact same function you'd call from C or C++.  But sometimes, such as when you're implementing a C library, when there is no C library call to access the functionality you need, or when your code needs to operate behind enemy lines, you want to talk to the OS kernel directly.  There's a special x86 "interrupt" instruction to do this, called "int".  
+
+More generally, an "interrupt" is a hardware feature where the CPU saves what it was doing and does something else for a while.  For example, every time a packet arrives from the network, the network card will interrupt the CPU, so some low-level operating system code can look at the packet and decide if it should keep running the current program, or switch to some new program (such as the web browser, or a network server).  Handling interrupts is the central responsibility of the operating system.
+
+On Linux, your software can talk directly to the OS by loading up values into registers then calling "int 0x80".  Register rax describes what to do (open a file, write data, etc), called the "syscall number".  The registers rbx, rcx, rdx, rsi, and rdi have the parameters describing how to do it.  This register-based parameter passing is similar to how we call functions in 64-bit x86, but using different register numbers, and the Linux kernel allows the use of this convention both in 32 and 64 bit mode.  
+
+The operating system allows you to perform a wide variety of almost magical features.  For example, Linux syscall number 2 is "fork", which creates a complete duplicate of your process.
+
+; System call numbers are listed in "asm/unistd.h"
+mov rax,2 ; the system call number of "fork"
+int 0x80 ; Issue "fork" system call (Linux 32-bit interface)
+
+ret
+
+(Try this in NetRun now!)
+
+The return value comes back in rax.  If it's negative, that indicates an error, which are listed in errno-base.h for common numbers and errno.h for more rarely used numbers.
+
+Konstantin Boldyshev has a good writeup and examples of Linux, BSD, and BeOS x86 syscalls, and a list of common Linux syscalls.  The full list of Linux syscalls is in/usr/include/asm/unistd_32.h.  Here's a netrun-friendly version of his Linux example:
+
+push rbx  ; <- we'll be using ebx below
+
+; System calls are listed in "asm/unistd.h"
+mov rax,4 ; the system call number of "write".
+mov rbx,1 ; first parameter: 1, the stdout file descriptor
+mov rcx,myStr ; data to write
+mov rdx,3 ; bytes to write
+int 0x80 ; Issue the system call
+
+pop rbx  ; <- restore ebx to its old value 
+ret
+
+section .data
+myStr:
+	db "Yo",0xa
+
+(Try this in NetRun now!)
+
+This same "int 0x80" approach works on both 32-bit or 64-bit Linux systems, *BUT* since the above is a 32-bit interface, any parameters you pass need to fit in 32 bits.  In particular, if you have a pointer to some data on the stack, the pointer (0x7fffffffbcde or something) is too big to fit, so you get "bad address" errors (EFAULT, error -14).  
+
+On a 64-bit Linux machine, there's a second 64-bit and marginally faster way to make system calls using a *different* list of syscall numbers under /usr/include/asm/unistd_64.h.  Like the 32-bit version, the system call number is passed in rax, but the parameters are in rdi, rsi, rdx, r10, r8, r9, somewhat like a function call but with slightly different registers!  Instead of "int 0x80", for this interface you use the new instruction "syscall".   The return is still in rax.
+
+; "sysenter" instruction call numbers are listed in "asm/unistd_64.h"
+mov rax,1 ; the (new) system call number of "write".
+mov rdi,1 ; first parameter: 1, the stdout file descriptor
+mov rsi,myStr ; data to write
+mov rdx,3 ; bytes to write
+syscall ; Issue the system call
+; leave syscall's return value in rax
+ret
+
+section .data
+myStr:
+	db "Yo",0xa
+
+section .text
+
+(Try this in NetRun now!)
+
+Other operating systems such as BSD UNIX store syscall parameters on the stack, like the 32-bit x86 function call interface.
+
+In ancient 16-bit DOS mode, you access DOS functionality via INT 0x21, with the equivalent of a system call number in register AH.
+
+In a PC BIOS boot block, you can access BIOS functionality via several interrupts, including INT 0x10 for screen access, or INT 0x13 for disk access.
+
+On ARM Linux systems, including Android or ChromeOS, you make a syscall with the special instruction "swi", with the syscall number in r7:
+
+push {r7,lr} @ save preserved register, and link register
+
+mov r7,2 @ syscall number for fork (Why r7?  Well, why not?)
+swi #0 @ "software interrupt", the ARM Linux syscall
+
+pop {r7,pc} @ restore and return
+
+(Try this in NetRun now!)
+
+Windows system call numbers keep changing, so direct system calls aren't at all easy to use on Windows.  The current numbers are stored in kernel32.dll.   This is partly a security feature, to make it harder to write portable Windows viruses!
+
+CS 301 Lecture Note, 2014, Dr. Orion Lawlor, UAF Computer Science Department.    
