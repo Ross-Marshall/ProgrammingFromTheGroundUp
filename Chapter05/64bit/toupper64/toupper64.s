@@ -140,7 +140,7 @@ open_fd_out:
 ########################################################################## 	
 	
 	movq $SYS_OPEN,%rax			# open command to rax
-	movq ST_ARGV_2(%rbp),%rbx		# file pointer to rdi
+	movq ST_ARGV_2(%rbp),%r10		# file pointer to rdi
 	#movq O_WRONLY,%rsi			# write only flag to rsi
 	movq $0666,%rdx				# file permissoins to rdx
 	
@@ -204,11 +204,11 @@ continue_read_loop:
 
 write_buffer:  # https://www.cs.utexas.edu/~bismith/test/syscalls/syscalls.html
 
-#	movq $SYS_WRITE, %rax		# system call 4 is write
-#	movq ST_FD_OUT(%rbp), %rbx	# file handle is in %rdi
-#	movq $BUFFER_DATA, %rcx		# location of the buffer
-	#movq $BUFFER_SIZE, %rdx	# size is in $rdx from the function
-#	syscall     #int $LINUX_SYSCALL 	
+	movq $O_WRONLY, %rax		# system call 4 is write
+	movq %r10, %rdi			# file handle is in %rdi
+	movq $BUFFER_DATA, %rsi		# location of the buffer
+	movq $BUFFER_SIZE, %rdx		# size is in $rdx from the function
+	syscall    	
 		
 ##########################################################################
 #
