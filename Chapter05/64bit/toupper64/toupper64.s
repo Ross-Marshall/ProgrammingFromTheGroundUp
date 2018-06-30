@@ -45,7 +45,7 @@
 ##########################################################################
 	
 	.equ O_RDONLY, 0	
-	.equ O_WRONLY, 1	
+	.equ O_WRONLY, 1	### ??? Is SYSOUT 1?
 	.equ O_RDWR,   2
 
 	.equ O_CREAT_WRONLY_TRUNC, 03101
@@ -140,8 +140,9 @@ open_fd_out:
 ########################################################################## 	
 	
 	movq $SYS_OPEN,%rax			# open command to rax
-	movq ST_ARGV_2(%rbp),%r10		# file pointer to rdi
-	#movq O_WRONLY,%rsi			# write only flag to rsi
+	movq ST_ARGV_2(%rbp),%rdi		# file pointer to rdi
+	#movq %rdi, %r10    # save the output file
+	movq $O_WRONLY,%rsi			# write only flag to rsi
 	movq $0666,%rdx				# file permissoins to rdx
 	
 	syscall		 			# call Linux
@@ -205,7 +206,7 @@ continue_read_loop:
 write_buffer:  # https://www.cs.utexas.edu/~bismith/test/syscalls/syscalls.html
 
 	movq $O_WRONLY, %rax		# system call 4 is write
-	movq %r10, %rdi			# file handle is in %rdi
+	movq ST_FD_OUT(%rbp), %rdi			# file handle is in %rdi
 	movq $BUFFER_DATA, %rsi		# location of the buffer
 	movq $BUFFER_SIZE, %rdx		# size is in $rdx from the function
 	syscall    	
