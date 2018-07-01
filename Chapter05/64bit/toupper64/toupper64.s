@@ -141,7 +141,7 @@ open_fd_out:
 	
 	movq $SYS_OPEN,%rax			# open command to rax
 	movq ST_ARGV_2(%rbp),%rdi		# file pointer to rdi
-	#movq %rdi, %r10    # save the output file
+	movq %rdi, %r8    # save the output file
 	movq $O_WRONLY,%rsi			# write only flag to rsi
 	movq $0666,%rdx				# file permissoins to rdx
 	
