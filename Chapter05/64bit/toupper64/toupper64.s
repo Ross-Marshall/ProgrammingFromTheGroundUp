@@ -172,7 +172,7 @@ read_loop_begin:
 	movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
 	movq $SYS_READ, %rax		# read command
 	movq $BUFFER_DATA,%rsi		# data buffer to rsi	
-     #   pushq %rsi
+    #   pushq %rsi
 	movq $BUFFER_SIZE,%rdx		# data size to rdx
         #pushq %rdx
 	
