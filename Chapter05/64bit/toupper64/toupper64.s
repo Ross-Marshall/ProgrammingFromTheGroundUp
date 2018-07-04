@@ -33,7 +33,7 @@
 	.equ SYS_WRITE, 1	
 	.equ SYS_READ,  0	
 	.equ SYS_CLOSE, 3	
-	.equ SYS_EXIT,  1
+	.equ SYS_EXIT,  60
 
 ##########################################################################
 # 	
@@ -146,10 +146,8 @@ open_fd_out:
 	
 	movq $SYS_OPEN,%rax			# open command to rax
 	movq ST_ARGV_2(%rbp),%rdi		# file pointer to rdi
-	movq %rdi, %r8    # save the output file
 	movq $O_WRONLY,%rsi			# write only flag to rsi
-	movq $0666,%rdx				# file permissoins to rdx
-	
+	movq $0666,%rdx				# file permissoins to rdx	
 	syscall		 			# call Linux
 
 store_fd_out:		
@@ -251,8 +249,8 @@ end_loop:
 ########################################################################## 
 		
 	movq $SYS_EXIT, %rax	
-	movq $0, %rbx	
-	int $LINUX_SYSCALL 	
+	movq $0, %rdi	
+	syscall	
 		
 ##########################################################################
 #
