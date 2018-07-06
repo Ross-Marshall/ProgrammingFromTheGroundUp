@@ -170,11 +170,11 @@ read_loop_begin:
 	movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
 	movq $SYS_READ, %rax		# read command
 	movq $BUFFER_DATA,%rsi		# data buffer to rsi	
-    #   pushq %rsi
 	movq $BUFFER_SIZE,%rdx		# data size to rdx
-        #pushq %rdx
 	
 	syscall 	 		# Size of buffer read is returned in %rax
+
+
 
 ##########################################################################		
 # 
@@ -184,7 +184,7 @@ read_loop_begin:
 	cmpq $END_OF_FILE, %rax		# check for end of file marker
 	jle end_loop 			# if found or on error, go to the end
 
-continue_read_loop:		
+continue_read_loop:	
 	
 ##########################################################################
 #	
