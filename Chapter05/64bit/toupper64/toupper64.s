@@ -151,6 +151,7 @@ open_fd_out:
 	syscall		 			# call Linux
 
 store_fd_out:		
+  
 	movq %rax, ST_FD_OUT(%rbp)		# store the file descriptor here
 
 ##########################################################################
@@ -295,11 +296,6 @@ end_loop:
 	.equ ST_BUFFER, 12			# actual buffer
 		
 convert_to_upper:
-
- # popq %r11
- # popq %r11
- # popq %r11
- # popq %r11
 		
 	pushq %rbp	
 	movq %rsp, %rbp	
@@ -320,7 +316,7 @@ convert_to_upper:
 convert_loop:	
 	
 	#movb (%rdi,%rdi,1), %cl			# get the current byte
-    movb (%rsi,%rdi,1), %cl
+        movb (%rsi,%rdi,1), %cl
 	cmpb $LOWERCASE_A, %cl			# go to the next byte unless it is between
 	jl next_byte 				# ’a’ and ’z’
 	cmpb $LOWERCASE_Z, %cl	
@@ -328,7 +324,7 @@ convert_loop:
 		
 	addb $UPPER_CONVERSION, %cl		# otherwise convert the byte to uppercase
 	#movb %cl, (%rax,%rdi,1)			# and store it back
-   movb %cl, (%rsi,%rdi,1)		
+        movb %cl, (%rsi,%rdi,1)		
 
 next_byte:	
 	
