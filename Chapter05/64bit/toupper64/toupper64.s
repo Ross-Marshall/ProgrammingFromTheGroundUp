@@ -198,7 +198,7 @@ continue_read_loop:
 	#pushq %rsi
  	#pushq %rdx	
 	call convert_to_upper	
-	popq %rax			# get the size back
+	#popq %rax			# get the size back
 	addq $8, %rsp			# restore %rsp
 
 ##########################################################################
@@ -237,11 +237,11 @@ end_loop:
 
 	movq $SYS_CLOSE, %rax	
 	movq ST_FD_OUT(%rbp), %rbx	
-	int $LINUX_SYSCALL 	
+	syscall     # int $LINUX_SYSCALL 	
 		
 	movq $SYS_CLOSE, %rax 	
 	movq ST_FD_IN(%rbp), %rbx 	
-	int $LINUX_SYSCALL 	
+	syscall     # int $LINUX_SYSCALL 	
 		
 ##########################################################################
 #
@@ -264,7 +264,7 @@ end_loop:
 # 		that buffer	
 # 		
 # OUTPUT:	This function overwrites the current	
-# 		buffer with the upper-casified version.	
+# 		buffer with the upper-casified version.	0x600198
 #
 # 		
 # VARIABLES:		
@@ -310,7 +310,7 @@ convert_to_upper:
 #	movq ST_BUFFER_LEN(%rbp), %rbx	
 	movq $0, %rdi	
 			
-	cmpq $0, %rax				# if a buffer with zero length was given
+	cmpq $0, %rdx				# if a buffer with zero length was given
 	je end_convert_loop 			# to us, just leave
 		
 convert_loop:	
