@@ -209,11 +209,11 @@ continue_read_loop:
 
 write_buffer:  # https://www.cs.utexas.edu/~bismith/test/syscalls/syscalls.html
 
-	movq $O_WRONLY, %rax		# system call 4 is write
-	movq ST_FD_OUT(%rbp), %rdi			# file handle is in %rdi
-	movq $BUFFER_DATA, %rsi		# location of the buffer
-	movq $BUFFER_SIZE, %rdx		# size is in $rdx from the function
-	syscall    	
+#	movq $O_WRONLY, %rax		# system call 4 is write
+#	movq ST_FD_OUT(%rbp), %rdi			# file handle is in %rdi
+#	movq $BUFFER_DATA, %rsi		# location of the buffer
+#	movq $BUFFER_SIZE, %rdx		# size is in $rdx from the function
+#	syscall    	
 		
 ##########################################################################
 #
@@ -329,7 +329,7 @@ convert_loop:
 next_byte:	
 	
 	incq %rdi				# next byte
-	cmpq %rdi, %rdx   #%rbx				# continue unless
+	cmpq %rdi, %rdx   #%rbx				# continue unlessb end_
 						# we’ve reached the
 						# end
 	jne convert_loop 	
