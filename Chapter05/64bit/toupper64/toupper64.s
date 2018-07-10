@@ -80,7 +80,8 @@
 #
 ##########################################################################	
 		
-.equ BUFFER_SIZE, 504	
+###.equ BUFFER_SIZE, 504	
+.equ BUFFER_SIZE, 4
 	
 .lcomm BUFFER_DATA, BUFFER_SIZE		
 		
@@ -205,7 +206,7 @@ continue_read_loop:
 #		
 # WRITE THE BLOCK OUT TO THE OUTPUT FILE
 # 		
-##########################################################################
+##########################################################################/
 
 write_buffer:  # https://www.cs.utexas.edu/~bismith/test/syscalls/syscalls.html
 
