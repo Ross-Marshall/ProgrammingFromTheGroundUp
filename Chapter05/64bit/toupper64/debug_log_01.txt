@@ -1,0 +1,106 @@
+==== ROUND 1 ====
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) stepi
+173		movq $SYS_READ, %rax		# read command
+(gdb) stepi
+174		movq $BUFFER_DATA,%rsi		# data buffer to rsi	
+(gdb) stepi
+175		movq $BUFFER_SIZE,%rdx		# data size to rdx
+(gdb) stepi
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x %rdi
+A syntax error in expression, near `%rdi'.
+(gdb) print/x $rdi
+$1 = 0x3
+(gdb) print/x $rax
+$2 = 0x0
+(gdb) print/x $rdx
+$3 = 0x4
+(gdb) print/x $rsi
+$4 = 0x60017c
+(gdb) x/s 0x60017c
+0x60017c <BUFFER_DATA>:	""
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) stepi
+187		jle end_loop 			# if found or on error, go to the end
+(gdb) print/x $rax
+$5 = 0x4
+(gdb) x/s 0x60017c
+0x60017c <BUFFER_DATA>:	"abcd"
+(gdb) continue
+Continuing.
+
+$END_OF_FILE = 0
+
+==== ROUND 2 ====
+print/x $rdi
+print/x $rax
+print/x $rdx
+print/x $rsi
+x/s 0x60017c
+
+(gdb) print/x $rdi
+$6 = 0x3
+(gdb) print/x $rax
+$7 = 0x4
+(gdb) print/x $rdx
+$8 = 0x4
+(gdb) print/x $rsi
+$9 = 0x60017c
+(gdb) x/s 0x60017c
+0x60017c <BUFFER_DATA>:	"efgh"
+
+==== ROUND 3 ====
+
+(gdb) clear read_loop_begin
+Deleted breakpoint 1 
+(gdb) b 177
+Breakpoint 2 at 0x40010e: file toupper64.s, line 177.
+(gdb) continue
+Continuing.
+
+Breakpoint 2, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$10 = 0x3
+(gdb) print/x $rax
+$11 = 0x0
+(gdb) print/x $rdx
+$12 = 0x4
+(gdb) print/x $rsi
+$13 = 0x60017c
+(gdb) x/s 0x60017c
+0x60017c <BUFFER_DATA>:	"EFGH"
+(gdb) 
+0x600181:	""
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) print/x $rax
+$14 = 0x4
+(gdb) stepi
+
+
+187		jle end_loop 			# if found or on error, go to the end
+(gdb) stepi
+continue_read_loop () at toupper64.s:201
+201		call convert_to_upper	
+
+=== ROUND 4 ====
+(gdb) continue
+Continuing.
+
+Breakpoint 2, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$15 = 0x40011b      ************* WHAT HAPPENED HERE????? *************
+(gdb) print/x $rax
+$16 = 0x0
+(gdb) print/x $rdx
+$17 = 0x4
+(gdb) print/x $rsi
+$18 = 0x60017c
+(gdb) x/s 0x60017c
+0x60017c <BUFFER_DATA>:	"IJKL"
+
