@@ -91,7 +91,8 @@ continue_read_loop () at toupper64.s:201
 (gdb) continue
 Continuing.
 
-Breakpoint 2, read_loop_begin () at toupper64.s:177
+
+Breakpoint 2, rstepiead_loop_begin () at toupper64.s:177
 177		syscall 	 		# Size of buffer read is returned in %rax
 (gdb) print/x $rdi
 $15 = 0x40011b      ************* WHAT HAPPENED HERE????? *************
@@ -103,4 +104,67 @@ $17 = 0x4
 $18 = 0x60017c
 (gdb) x/s 0x60017c
 0x60017c <BUFFER_DATA>:	"IJKL"
+
+
+(gdb) stepi
+187		jle end_loop 			# if found or on error, go to the end
+(gdb) stepi
+end_loop () at toupper64.s:239
+239		movq $SYS_CLOSE, %rax	
+(gdb) stepi
+240		movq ST_FD_OUT(%rbp), %rbx	
+(gdb) stepi
+241		syscall     # int $LINUX_SYSCALL 	
+(gdb) continue
+Continuing.
+[Inferior 1 (process 4634) exited normally]
+
+==================================================================================
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./toupper64...done.
+(gdb) b 172
+Breakpoint 1 at 0x4000f5: file toupper64.s, line 172.
+(gdb) r test.in test.out
+Starting program: /me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64/toupper64 test.in test.out
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x $rbp
+$1 = 0x7fffffffe180
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x $rbp
+$2 = 0x7fffffffe180
+(gdb) stepi
+173		movq $SYS_READ, %rax		# read command
+(gdb) print/x $rbp
+$3 = 0x7fffffffe180
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x $rbp
+$4 = 0x7fffffffe180
+(gdb) stepi
+173		movq $SYS_READ, %rax		# read command
+(gdb) print/x $rbp
+$5 = 0x7fffffffe180
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x $rbp
+$6 = 0x7fffffffe180
+(gdb) stepi
+173		movq $SYS_READ, %rax		# read command
+(gdb) print/x $rbp
+$7 = 0x7fffffffe180
+(gdb) continue
+Continuing.
+[Inferior 1 (process 2435) exited normally]
 
