@@ -309,7 +309,7 @@ convert_to_upper:
 	
 #	movq ST_BUFFER(%rbp), %rax	
 #	movq ST_BUFFER_LEN(%rbp), %rbx	
-	movq $0, %r11	
+	movq $0, %rdi	
 			
 	cmpq $0, %rdx				# if a buffer with zero length was given
 	je end_convert_loop 			# to us, just leave
@@ -317,20 +317,20 @@ convert_to_upper:
 convert_loop:	
 	
 	#movb (%rdi,%rdi,1), %cl			# get the current byte
-        movb (%rsi,%r11,1), %cl
+        movb (%rsi,%rdi,1), %cl
 	cmpb $LOWERCASE_A, %cl			# go to the next byte unless it is between
 	jl next_byte 				# ’a’ and ’z’
 	cmpb $LOWERCASE_Z, %cl	
 	jg next_byte 	
 		
 	addb $UPPER_CONVERSION, %cl		# otherwise convert the byte to uppercase
-	#movb %cl, (%rax,%r11,1)			# and store it back
-        movb %cl, (%rsi,%r11,1)		
+	#movb %cl, (%rax,%rdi,1)			# and store it back
+        movb %cl, (%rsi,%rdi,1)		
 
 next_byte:	
 	
-	incq %r11				# next byte
-	cmpq %r11, %rdx   #%rbx				# continue unlessb end_
+	incq %rdi				# next byte
+	cmpq %rdi, %rdx   #%rbx				# continue unlessb end_
 						# we’ve reached the
 						# end
 	jne convert_loop 	
