@@ -168,3 +168,198 @@ $7 = 0x7fffffffe180
 Continuing.
 [Inferior 1 (process 2435) exited normally]
 
+GNU gdb (Debian 7.12-6) 7.12.0.20161007-git
+Copyright (C) 2016 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./toupper64...done.
+(gdb) b 172
+Breakpoint 1 at 0x4000f5: file toupper64.s, line 172.
+(gdb) r test.in test.out
+Starting program: /me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64/toupper64 test.in test.out
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x $rbp
+$1 = 0x7fffffffe170
+(gdb) print/x $rdi
+$2 = 0x7fffffffe4d3
+(gdb) print/x $ST_FD_IN
+$3 = Value can't be converted to integer.
+(gdb) print/x ST_FD_IN
+Cannot access memory at address 0xfffffffffffffff8
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x ST_FD_IN
+Cannot access memory at address 0xfffffffffffffff8
+(gdb) print/x $rbp
+$4 = 0x7fffffffe170
+(gdb) print/x $rdi
+$5 = 0x3
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x ST_FD_IN
+Cannot access memory at address 0xfffffffffffffff8
+(gdb) print/x $rbp
+$6 = 0x7fffffffe170
+(gdb) print/x $rdi
+$7 = 0x3
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x ST_FD_IN
+Cannot access memory at address 0xfffffffffffffff8
+(gdb) print/x $rbp
+$8 = 0x7fffffffe170
+(gdb) print/x $rdi
+$9 = 0x3
+(gdb) continue
+Continuing.
+[Inferior 1 (process 26341) exited normally]
+(gdb) q
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ gdb ./toupper64 
+GNU gdb (Debian 7.12-6) 7.12.0.20161007-git
+Copyright (C) 2016 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./toupper64...done.
+(gdb) b 172
+Breakpoint 1 at 0x4000f5: file toupper64.s, line 172.
+(gdb) print/x ST_FD_IN
+Cannot access memory at address 0xfffffffffffffff8
+(gdb) print/x $rbp
+No registers.
+(gdb) print/x $rdi
+No registers.
+(gdb) r test.in test.out
+Starting program: /me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64/toupper64 test.in test.out
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x ST_FD_IN
+Cannot access memory at address 0xfffffffffffffff8
+(gdb) print/x $rbp
+$1 = 0x7fffffffe170
+(gdb) print/x $rdi
+$2 = 0x7fffffffe4d3
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x ST_FD_IN
+Cannot access memory at address 0xfffffffffffffff8
+(gdb) print/x $rbp
+$3 = 0x7fffffffe170
+(gdb) print/x $rdi
+$4 = 0x3
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x ST_FD_IN
+Cannot access memory at address 0xfffffffffffffff8
+(gdb) print/x $rbp
+$5 = 0x7fffffffe170
+(gdb) print/x $rdi
+$6 = 0x3
+(gdb) stepi
+173		movq $SYS_READ, %rax		# read command
+(gdb) stepi
+174		movq $BUFFER_DATA,%rsi		# data buffer to rsi	
+(gdb) print/x $rax
+$7 = 0x0
+(gdb) stepi
+175		movq $BUFFER_SIZE,%rdx		# data size to rdx
+(gdb) print/x $rsi
+$8 = 0x600180
+(gdb) stepi
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdx
+$9 = 0x4
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) print/x $rax
+$10 = 0x4
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x $rax
+$11 = 0x4
+(gdb) stepi
+173		movq $SYS_READ, %rax		# read command
+(gdb) stepi
+174		movq $BUFFER_DATA,%rsi		# data buffer to rsi	
+(gdb) stepi
+175		movq $BUFFER_SIZE,%rdx		# data size to rdx
+(gdb) stepi
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rax
+$12 = 0x0
+(gdb) print/x $si
+$13 = 0x180
+(gdb) print/x $rsi
+$14 = 0x600180
+(gdb) print/x $rdx
+$15 = 0x4
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) print/x $rax
+$16 = 0xfffffffffffffff7
+(gdb) stepi
+187		jle end_loop 			# if found or on error, go to the end
+(gdb) stepi
+end_loop () at toupper64.s:239
+239		movq $SYS_CLOSE, %rax	
+(gdb) print/x $rax
+$17 = 0xfffffffffffffff7
+(gdb) stepi
+240		movq ST_FD_OUT(%rbp), %rbx	
+(gdb) stepi
+241		syscall     # int $LINUX_SYSCALL 	
+(gdb) stepi
+243		movq $SYS_CLOSE, %rax 	
+(gdb) stepi
+244		movq ST_FD_IN(%rbp), %rbx 	
+(gdb) stepi
+245		syscall     # int $LINUX_SYSCALL 	
+(gdb) stepi
+253		movq $SYS_EXIT, %rax	
+(gdb) stepi
+254		movq $0, %rdi	
+(gdb) stepi
+255		syscall	
+(gdb) stepi
+[Inferior 1 (process 26424) exited normally]
+
