@@ -81,7 +81,7 @@
 ##########################################################################	
 		
 ###.equ BUFFER_SIZE, 504	
-.equ BUFFER_SIZE, 4
+.equ BUFFER_SIZE, 1000000 
 	
 .lcomm BUFFER_DATA, BUFFER_SIZE		
 		
