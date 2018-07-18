@@ -195,7 +195,7 @@ continue_read_loop:
 ##########################################################################
 	
 	#pushq $BUFFER_DATA		# location of buffer
-	#pushq %rax		r toupper64.s toupper64.uppercase	# size of the buffer
+	#pushq %rax		# r toupper64.s toupper64.uppercase	# size of the buffer
 	#pushq %rsi
  	#pushq %rdx	
 	call convert_to_upper	

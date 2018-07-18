@@ -363,3 +363,373 @@ $17 = 0xfffffffffffffff7
 (gdb) stepi
 [Inferior 1 (process 26424) exited normally]
 
+
+7/17
+
+megazor@m5:~$ cd /me/code/assembly/ProgrammingFromTheGroundUp/
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp$ ls
+Chapter03  Chapter03b  Chapter04b  Chapter05  e2  new_work  ProgrammingGroundUp-1-0-booksize.pdf  README.md  stage1  tools
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp$ cd Chapter05/
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05$ ls
+32bit  64bit
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05$ cd 64bit/
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit$ ls
+toupper64
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit$ cd toupper64/
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ ls
+a.out    ch12-system-calls.pdf  debug_log_01.txt  readonly.c  read_write.c  so2.s  TalkingToTheOSViaSyscalls.txt  test1.o  test.in    toupper64.o
+backups  debugger_command.txt   infile            readonly.s  read_write.s  so.s   test1                          test1.s  toupper64  toupper64.s
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ ls
+a.out    ch12-system-calls.pdf  debug_log_01.txt  readonly.c  read_write.c  so2.s  TalkingToTheOSViaSyscalls.txt  test1.o  test.in    toupper64.o
+backups  debugger_command.txt   infile            readonly.s  read_write.s  so.s   test1                          test1.s  toupper64  toupper64.s
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ 
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ 
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ 
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ gedit toupper64.s &
+[1] 3145
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ vi ../../32bit/toupper/toupper.s 
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ set -o vi
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ ../../../tools/debug64.sh toupper64
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ gdb ./toupper64 
+GNU gdb (Debian 7.12-6) 7.12.0.20161007-git
+Copyright (C) 2016 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./toupper64...done.
+(gdb) b 172
+Breakpoint 1 at 0x4000f5: file toupper64.s, line 172.
+(gdb) r test.in test.out
+Starting program: /me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64/toupper64 test.in test.out
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) print/x $rdi
+$1 = 0x7fffffffe4aa
+(gdb) stepi
+173		movq $SYS_READ, %rax		# read command
+(gdb) print/x $rax
+$2 = 0xfffffffffffffffe
+(gdb) stepi
+174		movq $BUFFER_DATA,%rsi		# data buffer to rsi	
+(gdb) print/x $rsi
+$3 = 0x1
+(gdb) stepi
+175		movq $BUFFER_SIZE,%rdx		# data size to rdx
+(gdb) print/d $rdx
+$4 = 438
+(gdb) stepi
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:172
+172		movq ST_FD_IN(%rbp),%rdi	# get the input file descriptor
+(gdb) clear 172
+Deleted breakpoint 1 
+(gdb) continue
+Continuing.
+[Inferior 1 (process 3604) exited normally]
+(gdb) quit
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ gdb ./toupper64 
+GNU gdb (Debian 7.12-6) 7.12.0.20161007-git
+Copyright (C) 2016 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./toupper64...done.
+(gdb) b 177
+Breakpoint 1 at 0x40010e: file toupper64.s, line 177.
+(gdb) r test.in test.out
+Starting program: /me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64/toupper64 test.in test.out
+
+Breakpoint 1, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$1 = 0x3
+(gdb) print/x $rax
+$2 = 0x0
+(gdb) print/x $rsi
+$3 = 0x600180
+(gdb) print/x $rdx
+$4 = 0x4
+(gdb) print/x $rdi
+$5 = 0x3
+(gdb) print/x $rax
+$6 = 0x0
+(gdb) print/x $rsi
+$7 = 0x600180
+(gdb) print/d $rdx
+$8 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	""
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) print/x $rdi
+$9 = 0x3
+(gdb) print/x $rax
+$10 = 0x4
+(gdb) print/x $rsi
+$11 = 0x600180
+(gdb) print/d $rdx
+$12 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"abcd"
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$13 = 0x3
+(gdb) print/x $rax
+$14 = 0x0
+(gdb) print/x $rsi
+$15 = 0x600180
+(gdb) print/d $rdx
+$16 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"ABCD"
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) print/x $rdi
+$17 = 0x3
+(gdb) print/x $rax
+$18 = 0x4
+(gdb) print/x $rsi
+$19 = 0x600180
+(gdb) print/d $rdx
+$20 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"efgh"
+(gdb) 
+0x600185:	""
+(gdb) 
+0x600186:	""
+(gdb) print/x $rdi
+$21 = 0x3
+(gdb) print/x $rax
+$22 = 0x4
+(gdb) print/x $rsi
+$23 = 0x600180
+(gdb) print/d $rdx
+$24 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"efgh"
+(gdb) 
+0x600185:	""
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$25 = 0x3
+(gdb) print/x $rax
+$26 = 0x0
+(gdb) print/x $rsi
+$27 = 0x600180
+(gdb) print/d $rdx
+$28 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"EFGH"
+(gdb) 
+0x600185:	""
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$29 = 0x40011b
+(gdb) print/x $rax
+$30 = 0x0
+(gdb) print/x $rsi
+$31 = 0x600180
+(gdb) print/d $rdx
+$32 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"IJKL"
+(gdb) 
+0x600185:	""
+(gdb) continue
+Continuing.
+[Inferior 1 (process 3626) exited normally]
+(gdb) quit
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ vi test.in 
+megazor@m5:/me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64$ gdb ./toupper64 
+GNU gdb (Debian 7.12-6) 7.12.0.20161007-git
+Copyright (C) 2016 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+<http://www.gnu.org/software/gdb/documentation/>.
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./toupper64...done.
+(gdb) b 177
+Breakpoint 1 at 0x40010e: file toupper64.s, line 177.
+(gdb) run test.in test.out
+Starting program: /me/code/assembly/ProgrammingFromTheGroundUp/Chapter05/64bit/toupper64/toupper64 test.in test.out
+
+Breakpoint 1, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$1 = 0x3
+(gdb) print/x $rax
+$2 = 0x0
+(gdb) print/x $rsi
+$3 = 0x600180
+(gdb) print/d $rdx
+$4 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	""
+(gdb) 
+0x600181 <BUFFER_DATA+1>:	""
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) print/x $rdi
+$5 = 0x3
+(gdb) print/x $rax
+$6 = 0x4
+(gdb) print/x $rsi
+$7 = 0x600180
+(gdb) print/d $rdx
+$8 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"abcd"
+(gdb) 
+0x600185:	""
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$9 = 0x3
+(gdb) print/x $rax
+$10 = 0x0
+(gdb) print/x $rsi
+$11 = 0x600180
+(gdb) print/d $rdx
+$12 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"ABCD"
+(gdb) 
+0x600185:	""
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) print/x $rdi
+$13 = 0x3
+(gdb) print/x $rax
+$14 = 0x4
+(gdb) print/x $rsi
+$15 = 0x600180
+(gdb) print/d $rdx
+$16 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"efgh"
+(gdb) 
+0x600185:	""
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$17 = 0x3
+(gdb) print/x $rax
+$18 = 0x0
+(gdb) print/x $rsi
+$19 = 0x600180
+(gdb) print/d $rdx
+$20 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"EFGH"
+(gdb) 
+0x600185:	""
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) print/x $rdi
+$21 = 0x3
+(gdb) print/x $rax
+$22 = 0x4
+(gdb) print/x $rsi
+$23 = 0x600180
+(gdb) print/d $rdx
+$24 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"ijkl"
+(gdb) 
+0x600185:	""
+(gdb) continue
+Continuing.
+
+Breakpoint 1, read_loop_begin () at toupper64.s:177
+177		syscall 	 		# Size of buffer read is returned in %rax
+(gdb) print/x $rdi
+$25 = 0x40011b
+(gdb) print/x $rax
+$26 = 0x0
+(gdb) print/x $rsi
+$27 = 0x600180
+(gdb) print/d $rdx
+$28 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"IJKL"
+(gdb) 
+0x600185:	""
+(gdb) stepi
+186		cmpq $END_OF_FILE, %rax		# check for end of file marker
+(gdb) print/x $rdi
+$29 = 0x40011b
+(gdb) print/x $rax
+$30 = 0xfffffffffffffff7
+(gdb) print/x $rsi
+$31 = 0x600180
+(gdb) print/d $rdx
+$32 = 4
+(gdb) x/s 0x600180
+0x600180 <BUFFER_DATA>:	"IJKL"
+(gdb) 
+0x600185:	""
+(gdb) print/x $rdi
+$33 = 0x40011b
+(gdb) print/d $rdi
+$34 = 4194587
+(gdb) print/d $di
+$35 = 283
+(gdb) print/d $edi
+$36 = 4194587
+(gdb) print/x $edi
+$37 = 0x40011b
+(gdb) print/x $di
+$38 = 0x11b
+(gdb) print/x $rdi
+$39 = 0x40011b
+(gdb) 
+
