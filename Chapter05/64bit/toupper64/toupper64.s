@@ -161,7 +161,8 @@ store_fd_out:
 #
 ########################################################################## 	
 	
-read_loop_begin:		
+#read_loop_begin:
+read_file:		
 	
 ##########################################################################	
 #
@@ -183,10 +184,10 @@ read_loop_begin:
 # EXIT IF WE’VE REACHED THE END
 #
 ########################################################################## 		
-	cmpq $END_OF_FILE, %rax		# check for end of file marker
-	jle end_loop 			# if found or on error, go to the end
+#	cmpq $END_OF_FILE, %rax		# check for end of file marker
+#	jle end_loop 			# if found or on error, go to the end
 
-continue_read_loop:	
+#continue_read_loop:	
 	
 ##########################################################################
 #	
@@ -210,11 +211,11 @@ continue_read_loop:
 
 write_buffer:  # https://www.cs.utexas.edu/~bismith/test/syscalls/syscalls.html
 
-#	movq $O_WRONLY, %rax		# system call 4 is write
-#	movq ST_FD_OUT(%rbp), %rdi			# file handle is in %rdi
-#	movq $BUFFER_DATA, %rsi		# location of the buffer
+	movq $O_WRONLY, %rax		# system call 4 is write
+	movq ST_FD_OUT(%rbp), %rdi			# file handle is in %rdi
+	movq $BUFFER_DATA, %rsi		# location of the buffer
 #	movq $BUFFER_SIZE, %rdx		# size is in $rdx from the function
-#	syscall    	
+	syscall    	
 		
 ##########################################################################
 #
@@ -222,9 +223,9 @@ write_buffer:  # https://www.cs.utexas.edu/~bismith/test/syscalls/syscalls.html
 # 		
 ##########################################################################
 
-	jmp read_loop_begin 	
+#	jmp read_loop_begin 	
 		
-end_loop:	
+#end_loop:	
 
 ##########################################################################
 #	
@@ -328,14 +329,19 @@ convert_loop:
         movb %cl, (%rsi,%r11,1)		
 
 next_byte:	
+	incq %r11				# next byte	
+
+	#cmpq %r11, %rdx   #%rbx		# continue unlessb end_
 	
-	incq %r11				# next byte
-	cmpq %r11, %rdx   #%rbx				# continue unlessb end_
+	cmpb $END_OF_FILE, %cl
 						# we’ve reached the
 						# end
 	jne convert_loop 	
 		
-end_convert_loop:		
+end_convert_loop:	
+#	decq %r11
+	movq %r11, %rdx	
+
 	movq %rbp, %rsp				# no return value, just leave
 	popq %rbp	
 	ret	
