@@ -14,6 +14,10 @@
 # 			   convert it to uppercase	
 # 			c) write the memory buffer to output file
 #
+# TO-DO:
+# Friday:
+# Saturday:
+# Sunday:
 ##########################################################################
 	
 .section .data	
