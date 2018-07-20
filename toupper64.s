@@ -15,7 +15,7 @@
 # 			c) write the memory buffer to output file
 #
 # TO-DO:
-# Friday:
+# Friday: Restore loop, but return real length.
 # Saturday:
 # Sunday:
 ##########################################################################
