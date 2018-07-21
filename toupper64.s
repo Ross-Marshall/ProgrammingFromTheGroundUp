@@ -16,7 +16,7 @@
 #
 # TO-DO:
 # Friday: Restore loop, but return real length.
-# Saturday:
+# Saturday:Create table to determine next
 # Sunday:
 ##########################################################################
 	
