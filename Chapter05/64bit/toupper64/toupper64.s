@@ -161,7 +161,7 @@ store_fd_out:
 #
 ########################################################################## 	
 	
-#read_loop_begin:
+read_loop_begin:
 read_file:		
 	
 ##########################################################################	
@@ -187,7 +187,7 @@ read_file:
 #	cmpq $END_OF_FILE, %rax		# check for end of file marker
 #	jle end_loop 			# if found or on error, go to the end
 
-#continue_read_loop:	
+continue_read_loop:	
 	
 ##########################################################################
 #	
@@ -223,9 +223,9 @@ write_buffer:  # https://www.cs.utexas.edu/~bismith/test/syscalls/syscalls.html
 # 		
 ##########################################################################
 
-#	jmp read_loop_begin 	
+	jmp read_loop_begin 	
 		
-#end_loop:	
+end_loop:	
 
 ##########################################################################
 #	
