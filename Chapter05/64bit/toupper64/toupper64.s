@@ -184,8 +184,8 @@ read_file:
 # EXIT IF WE’VE REACHED THE END
 #
 ########################################################################## 		
-#	cmpq $END_OF_FILE, %rax		# check for end of file marker
-#	jle end_loop 			# if found or on error, go to the end
+	cmpq $END_OF_FILE, %rax		# check for end of file marker
+	jle end_loop 			# if found or on error, go to the end
 
 continue_read_loop:	
 	
@@ -331,7 +331,7 @@ convert_loop:
 next_byte:	
 	incq %r11				# next byte	
 
-	#cmpq %r11, %rdx   #%rbx		# continue unlessb end_
+	#cmpq %r11, %rdx   #%rbx		# continue unless end
 	
 	cmpb $END_OF_FILE, %cl
 						# we’ve reached the
