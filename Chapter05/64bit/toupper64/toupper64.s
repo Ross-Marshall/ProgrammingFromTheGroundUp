@@ -214,7 +214,7 @@ write_buffer:  # https://www.cs.utexas.edu/~bismith/test/syscalls/syscalls.html
 	movq $O_WRONLY, %rax		# system call 4 is write
 	movq ST_FD_OUT(%rbp), %rdi			# file handle is in %rdi
 	movq $BUFFER_DATA, %rsi		# location of the buffer
-#	movq $BUFFER_SIZE, %rdx		# size is in $rdx from the function
+	movq $BUFFER_SIZE, %rdx		# size is in $rdx from the function
 	syscall    	
 		
 ##########################################################################
